@@ -1,65 +1,82 @@
-Housing Price Prediction
-This project uses machine learning techniques to predict housing prices based on various features such as geographical location, housing characteristics, and proximity to the ocean. The models used in this project include Linear Regression and Random Forest Regressor, with hyperparameter tuning performed on the Random Forest model using Grid Search.
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import GridSearchCV
 
-Dataset
-The dataset used for this project includes features like:
+# Load the data
+data = pd.read_csv("housing.csv")
 
-longitude: Longitude coordinate of the block.
-latitude: Latitude coordinate of the block.
-housing_median_age: Median age of the houses in the block.
-total_rooms: Total number of rooms in the block.
-total_bedrooms: Total number of bedrooms in the block.
-population: Total population in the block.
-households: Total number of households in the block.
-median_income: Median income of households in the block (in tens of thousands of dollars).
-median_house_value: Median house value in the block (in US dollars).
-ocean_proximity: Categorical feature representing the proximity to the ocean.
-Project Workflow
-Data Preprocessing
+# Handle missing values
+data.dropna(inplace=True)
 
-Missing values are removed from the dataset using dropna().
-Categorical variables (ocean_proximity) are converted into dummy variables using one-hot encoding.
-New features are created:
-bedroom_ratio: The ratio of total bedrooms to total rooms.
-household_rooms: The average number of rooms per household.
-Splitting the Data
+# Define features and target
+x = data.drop(['median_house_value'], axis=1)
+y = data['median_house_value']
 
-The data is split into training (80%) and test sets (20%) using train_test_split().
-Linear Regression Model
+# Split data into training and test sets
+X_train, X_test, Y_train, Y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 
-A linear regression model is trained on the training data and evaluated on the test data.
-Random Forest Model
+# Join features and target for training data
+train_data = X_train.join(Y_train)
 
-A random forest regressor is trained on the training data and evaluated on the test data.
-Grid Search is used to find the best hyperparameters for the random forest model, optimizing for the lowest mean squared error.
-Feature Transformation for Test Data
+# Convert categorical 'ocean_proximity' to dummy variables
+train_data = train_data.join(pd.get_dummies(train_data['ocean_proximity'])).drop(['ocean_proximity'], axis=1)
 
-Log transformations are applied to some features in the test data to normalize distributions and handle outliers.
-The test data is transformed similarly to the training data, ensuring feature consistency.
-Requirements
-Python 3.x
-Pandas
-NumPy
-Matplotlib
-Seaborn
-Scikit-learn
-You can install the required Python packages using the following command:
+# Feature engineering
+train_data["bedroom_ratio"] = train_data["total_bedrooms"] / train_data["total_rooms"]
+train_data["household_rooms"] = train_data["total_rooms"] / train_data["households"]
 
-bash
-Copy code
-pip install pandas numpy matplotlib seaborn scikit-learn
-Usage
-Prepare the Dataset: Ensure the dataset file housing.csv is present in the same directory as the script.
-Run the Script: Execute the Python script to train models and evaluate their performance.
-bash
-Copy code
-python housing_price_prediction.py
-Model Evaluation: The script will output the following:
-Linear Regression score on the test set.
-Random Forest score on the test set.
-Best Random Forest score using Grid Search.
-Hyperparameter Tuning
-Grid Search is applied to the Random Forest model to find the best set of hyperparameters:
+# Define the feature set (X) and target (y) for training
+x_train = train_data.drop(['median_house_value'], axis=1)
+y_train = train_data['median_house_value']
 
-n_estimators: Number of trees in the forest (3, 10, 30).
-max_features: Number of features considered for splitting at each node (2, 4, 6, 8).
+# Linear Regression model
+reg = LinearRegression()
+reg.fit(x_train, y_train)
+
+# Process the test data
+test_data = X_test.join(Y_test)
+test_data['total_rooms'] = np.log(test_data['total_rooms'] + 1)
+test_data['total_bedrooms'] = np.log(test_data['total_bedrooms'] + 1)
+test_data['population'] = np.log(test_data['population'] + 1)
+test_data['households'] = np.log(test_data['households'] + 1)
+
+# Convert categorical 'ocean_proximity' to dummy variables in test set
+test_data = test_data.join(pd.get_dummies(test_data['ocean_proximity'])).drop(['ocean_proximity'], axis=1)
+
+# Feature engineering for test data
+test_data["bedroom_ratio"] = test_data["total_bedrooms"] / test_data["total_rooms"]
+test_data["household_rooms"] = test_data["total_rooms"] / test_data["households"]
+
+# Ensure that test data has the same features as training data
+x_test = test_data[x_train.columns]
+y_test = test_data['median_house_value']
+
+# Evaluate the Linear Regression model
+print("Linear Regression score:", reg.score(x_test, y_test))
+
+# Random Forest model
+forest = RandomForestRegressor()
+forest.fit(x_train, y_train)
+
+# Evaluate the Random Forest model
+print("Random Forest score:", forest.score(x_test, y_test))
+
+# Perform grid search for Random Forest
+param_grid = {
+    "n_estimators": [3, 10, 30],  # Corrected spelling
+    "max_features": [2, 4, 6, 8]
+}
+
+grid_search = GridSearchCV(forest, param_grid, cv=5, scoring="neg_mean_squared_error", return_train_score=True)
+grid_search.fit(x_train, y_train)
+
+# Best estimator from grid search
+best_forest = grid_search.best_estimator_
+
+# Evaluate the best Random Forest model
+print("Best Random Forest score:", best_forest.score(x_test, y_test))
