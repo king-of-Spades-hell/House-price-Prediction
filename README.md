@@ -1,65 +1,87 @@
-Housing Price Prediction
-This project uses machine learning techniques to predict housing prices based on various features such as geographical location, housing characteristics, and proximity to the ocean. The models used in this project include Linear Regression and Random Forest Regressor, with hyperparameter tuning performed on the Random Forest model using Grid Search.
+# Housing Price Prediction
 
-Dataset
-The dataset used for this project includes features like:
+This project implements a pipeline to predict housing prices using Linear Regression and Random Forest models. The dataset used is the `housing.csv` file, and it includes feature engineering, model training, evaluation, and hyperparameter optimization.
 
-longitude: Longitude coordinate of the block.
-latitude: Latitude coordinate of the block.
-housing_median_age: Median age of the houses in the block.
-total_rooms: Total number of rooms in the block.
-total_bedrooms: Total number of bedrooms in the block.
-population: Total population in the block.
-households: Total number of households in the block.
-median_income: Median income of households in the block (in tens of thousands of dollars).
-median_house_value: Median house value in the block (in US dollars).
-ocean_proximity: Categorical feature representing the proximity to the ocean.
-Project Workflow
-Data Preprocessing
+## 🚀 Features
+- **Data Preprocessing**: Handles missing values and categorical data.
+- **Feature Engineering**: Adds derived features to improve model performance.
+- **Model Training**: Trains both Linear Regression and Random Forest models.
+- **Hyperparameter Tuning**: Optimizes Random Forest parameters using GridSearchCV.
+- **Evaluation**: Provides performance metrics for both models.
 
-Missing values are removed from the dataset using dropna().
-Categorical variables (ocean_proximity) are converted into dummy variables using one-hot encoding.
-New features are created:
-bedroom_ratio: The ratio of total bedrooms to total rooms.
-household_rooms: The average number of rooms per household.
-Splitting the Data
+## 📂 Dataset
+The dataset should be in CSV format and include the following columns:
+- `total_rooms`
+- `total_bedrooms`
+- `population`
+- `households`
+- `ocean_proximity` (categorical)
+- `median_house_value` (target)
 
-The data is split into training (80%) and test sets (20%) using train_test_split().
-Linear Regression Model
+## 🛠 Setup
 
-A linear regression model is trained on the training data and evaluated on the test data.
-Random Forest Model
+### Prerequisites
+- Python 3.x
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
+- Scikit-learn
 
-A random forest regressor is trained on the training data and evaluated on the test data.
-Grid Search is used to find the best hyperparameters for the random forest model, optimizing for the lowest mean squared error.
-Feature Transformation for Test Data
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repository.git
+   cd your-repository
+   ```
+2. Install required Python packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Place the `housing.csv` dataset in the project directory.
 
-Log transformations are applied to some features in the test data to normalize distributions and handle outliers.
-The test data is transformed similarly to the training data, ensuring feature consistency.
-Requirements
-Python 3.x
-Pandas
-NumPy
-Matplotlib
-Seaborn
-Scikit-learn
-You can install the required Python packages using the following command:
-
-bash
-Copy code
-pip install pandas numpy matplotlib seaborn scikit-learn
-Usage
-Prepare the Dataset: Ensure the dataset file housing.csv is present in the same directory as the script.
-Run the Script: Execute the Python script to train models and evaluate their performance.
-bash
-Copy code
+## ▶️ Usage
+Run the script to preprocess the data, train models, and evaluate performance:
+```bash
 python housing_price_prediction.py
-Model Evaluation: The script will output the following:
-Linear Regression score on the test set.
-Random Forest score on the test set.
-Best Random Forest score using Grid Search.
-Hyperparameter Tuning
-Grid Search is applied to the Random Forest model to find the best set of hyperparameters:
+```
 
-n_estimators: Number of trees in the forest (3, 10, 30).
-max_features: Number of features considered for splitting at each node (2, 4, 6, 8).
+## 📚 Key Steps
+
+### 1. Data Preprocessing
+- **Handle Missing Values**: Removes rows with missing data.
+- **Categorical Variables**: Converts `ocean_proximity` into dummy variables.
+- **Log Transformation**: Applies log transformation to numerical features for better normalization.
+
+### 2. Feature Engineering
+- Adds derived features:
+  - `bedroom_ratio`: Ratio of `total_bedrooms` to `total_rooms`.
+  - `household_rooms`: Average number of rooms per household.
+
+### 3. Model Training and Evaluation
+- **Linear Regression**:
+  - Fits a linear model to the training data.
+  - Evaluates performance using R² score.
+- **Random Forest**:
+  - Trains a Random Forest model for regression.
+  - Evaluates performance using R² score.
+
+### 4. Hyperparameter Tuning
+- Performs GridSearchCV for Random Forest to find optimal values for:
+  - `n_estimators`
+  - `max_features`
+- Evaluates the best model on the test set.
+
+## 🔧 Customization
+- **Add more features**: Include additional derived features to improve model accuracy.
+- **Hyperparameter tuning**: Expand the parameter grid for GridSearchCV to explore more options.
+- **Dataset**: Replace with a different dataset to explore other regression problems.
+
+## 📝 Results
+- **Linear Regression Score**: R² score for the Linear Regression model.
+- **Random Forest Score**: R² score for the Random Forest model.
+- **Best Random Forest Score**: R² score for the best Random Forest model after hyperparameter tuning.
+
+## 🤝 Contributions
+Contributions are welcome! Feel free to fork the repository and submit a pull request.
+
